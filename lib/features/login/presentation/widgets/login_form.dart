@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_code_test_app/features/login/presentation/bloc/login_bloc.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -14,8 +16,17 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(padding: const EdgeInsets.all(20.0), child: _main()),
+    return Scaffold(
+      body: BlocListener<LoginCubit, LoginState>(
+        listener: (context, state) {
+          if (state.user != null) {
+            _success();
+          }
+        },
+        child: Center(
+          child: Padding(padding: const EdgeInsets.all(20.0), child: _main()),
+        ),
+      ),
     );
   }
 
@@ -29,6 +40,13 @@ class _LoginFormState extends State<LoginForm> {
   void _submit() {
     if (_formKey.currentState?.validate() != true) return;
     // Simulate login delay
+    context.read<LoginCubit>().login(
+      _nameController.text,
+      _passwordController.text,
+    );
+  }
+
+  void _success() {
     Future.delayed(const Duration(seconds: 2), () {
       if (!mounted) return;
       ScaffoldMessenger.of(
