@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_code_test_app/core/utils/constants/app_theme.dart';
-import 'package:flutter_code_test_app/features/splash/pages/splash_page.dart';
+import 'package:flutter_code_test_app/features/login/presentation/pages/login_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: myTheme,
       debugShowCheckedModeBanner: false,
-      home: const SplashPage(),
+      home: const LoginPage(),
     );
   }
 }
