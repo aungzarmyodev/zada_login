@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_code_test_app/core/utils/constants/app_theme.dart';
+import 'package:flutter_code_test_app/core/constants/app_theme.dart';
 import 'package:flutter_code_test_app/features/login/presentation/pages/login_page.dart';
 
 void main() {
