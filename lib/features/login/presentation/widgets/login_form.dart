@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_code_test_app/features/login/presentation/bloc/login_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -10,102 +11,54 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _passwordController = TextEditingController();
-
+  String? deepLink;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocListener<LoginCubit, LoginState>(
-        listener: (context, state) {
-          if (state.user != null) {
-            _success();
+      body: BlocBuilder<LoginCubit, LoginState>(
+        builder: (context, state) {
+          if (state.loading) {
+            return Center(child: CircularProgressIndicator());
           }
+
+          if (state.deepLink != null) {
+            deepLink = state.deepLink;
+            return _main();
+          }
+
+          if (state.error != null) {
+            return Text("Error: ${state.error}");
+          }
+
+          return Text("Initializing...");
         },
-        child: Center(
-          child: Padding(padding: const EdgeInsets.all(20.0), child: _main()),
-        ),
       ),
     );
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    if (_formKey.currentState?.validate() != true) return;
-    // Simulate login delay
-    context.read<LoginCubit>().login(
-      _nameController.text,
-      _passwordController.text,
-    );
-  }
-
-  void _success() {
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Login Successful!')));
-    });
-  }
-
-  String? _validateName(String? value) {
-    if (value == null || value.isEmpty) return 'Please enter email';
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) return 'Please enter password';
-    return null;
+  Future<void> _openZadaApp() async {
+    if (deepLink != null) {
+      final Uri url = Uri.parse(deepLink!);
+      if (!await launchUrl(url)) {
+        throw Exception('Could not launch $url');
+      }
+    }
   }
 
   Widget _main() {
-    return Form(
-      key: _formKey,
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
+
         children: [
-          TextFormField(
-            controller: _nameController,
-            decoration: InputDecoration(
-              hintText: 'Enter Name',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-              ),
-            ),
-            validator: _validateName,
-          ),
-          const SizedBox(height: 20),
-          TextFormField(
-            controller: _passwordController,
-            decoration: InputDecoration(
-              hintText: 'Enter Password',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-              ),
-            ),
-            obscureText: true,
-            validator: _validatePassword,
-          ),
-          const SizedBox(height: 20),
+          Text('If you have a deeplink to open Zada app. $deepLink'),
+          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
-              _submit();
+              _openZadaApp();
             },
-            child: Text('Login'),
+            child: Text('Open Zada'),
           ),
         ],
       ),
